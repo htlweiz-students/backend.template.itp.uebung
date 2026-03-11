@@ -7,3 +7,8 @@ class EntityBase(BaseModel):
 
 class EntityFull(EntityBase):
     id: int
+
+
+class EntityFilter(BaseModel):
+    name: str | None
+    id: int | None

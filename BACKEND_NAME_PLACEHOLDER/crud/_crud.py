@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
 from BACKEND_NAME_PLACEHOLDER.model import Entity, Person, User
-from BACKEND_NAME_PLACEHOLDER.schema import EntityBase, EntityFull, UserBase, UserFull
+from BACKEND_NAME_PLACEHOLDER.schema import (EntityBase, EntityFilter,
+                                             EntityFull, UserBase, UserFull)
 
 
 class Crud:
@@ -30,17 +31,19 @@ class Crud:
             return []
         return []
 
-    def get_entities(self, filter: str | None = None) -> list[EntityFull]:
+    def get_entities(self, filter: EntityFilter | None = None) -> list[EntityFull]:
         with Session(bind=self._engine) as session:
             full_entities: list[EntityFull] = []
             stmt = select(Entity)
+            if filter and filter.name:
+                stmt = stmt.filter(Entity.name.like(filter.name))
+            if filter and filter.id:
+                stmt = stmt.filter(Entity.id.is_(filter.id))
             for orm_entity in session.execute(stmt).scalars().all():
                 full_entities.append(EntityFull(id=orm_entity.id, name=orm_entity.name))
             return full_entities
 
-    def create_entity(
-        self, new_entity: EntityBase, session: Session | None = None
-    ) -> EntityFull:
+    def create_entity(self, new_entity: EntityBase) -> EntityFull:
         with Session(bind=self._engine) as session:
             entity = self._create_entity(session, new_entity)
             session.commit()
