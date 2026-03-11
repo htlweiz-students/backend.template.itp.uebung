@@ -15,5 +15,6 @@ def test_entity_00():
 
     assert entity_copy == entity
 
+
 def test_fail():
     assert True
