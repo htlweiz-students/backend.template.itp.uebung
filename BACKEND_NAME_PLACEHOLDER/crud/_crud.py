@@ -1,5 +1,6 @@
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import select
 
 from BACKEND_NAME_PLACEHOLDER.model import Entity, Person, User
 from BACKEND_NAME_PLACEHOLDER.schema import EntityBase, EntityFull, UserBase, UserFull
@@ -9,10 +10,17 @@ class Crud:
     def __init__(self, engine: Engine):
         self._engine: Engine = engine
 
-    def get_users(self, filter: str | None = None) -> list[User]:
-        if not filter:
-            return []
-        return []
+    def get_users(self, filter: str | None = None) -> list[UserFull]:
+        with Session(bind=self._engine) as session:
+            full_users: list[UserFull] = []
+            stmt = select(User)
+            for orm_user in session.execute(stmt).scalars().all():
+                full_users.append(UserFull(id=orm_user.entity_id,
+                                           name=orm_user.entity.name,
+                                           user_name=orm_user.user_name,
+                                           password_hash=orm_user.password_hash))
+            return full_users
+
 
     def get_persons(self, filter: str | None = None) -> list[Person]:
         if not filter:
