@@ -2,19 +2,42 @@
 
 cd $(dirname $0)
 
-TMP_DIR=$(mktemp -d)
-trap "echo rm -rf ${TMP_DIR}" EXIT
+[ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d)
 [ -d "${TMP_DIR}" ] || exit 1
 
 OK_TEXT="\e[32m OK \e[0m"
 FAIL_TEXT="\e[31mFAIL\e[0m"
-
 PYTEST_LOG="${TMP_DIR}/pytest.log"
 PYRIGHT_LOG="${TMP_DIR}/pyright.log"
 CODESPELL_LOG="${TMP_DIR}/codespell.log"
 ERROR_LOG="${TMP_DIR}/error.log"
+API_LOG="${TMP_DIR}/api.log"
+API_PID_FILE="${TMP_DIR}/api.pid"
+CONFIG_FILE="${TMP_DIR}"/config.json
+echo "{ \"connection_string\":\"sqlite:///${TMP_DIR}/db.sqlite\" }" >${CONFIG_FILE}
+reload="Y"
+
+on_term() {
+  reload="N"
+  echo TERMINATING
+  kill $(cat ${API_PID_FILE})
+  wait $(cat ${API_PID_FILE})
+  rm ${API_PID_FILE}
+  [ -n "${animate_pid}" ] && kill -9 ${animate_pid}
+  [ -n "${kill_pid}" ] && kill -9 ${kill_pid}
+}
+
+trap on_term TERM INT KILL
 
 . ./venv/bin/activate
+
+if [ -f "${API_PID_FILE}" ]; then
+  echo API ALREADY running
+  sleep 4
+else
+  CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn BACKEND_NAME_PLACEHOLDER.main:app --reload --reload-dir BACKEND_NAME_PLACEHOLDER &
+  echo $! >${API_PID_FILE}
+fi
 
 animate_sleep() {
   sleep 0.05 || sleep 1
@@ -49,14 +72,10 @@ run_codespell() {
   return $?
 }
 
-reload="Y"
-
 clear
-
 setterm -cursor off
 animate &
 animate_pid=$!
-trap "kill ${animate_pid}" EXIT
 
 run_pytest &
 pytest_pid=$!
@@ -65,6 +84,7 @@ pyright_pid=$!
 run_codespell &
 codespell_pid=$!
 
+rm ${ERROR_LOG}
 pytest_ok="${OK_TEXT}"
 wait ${pytest_pid} || {
   echo --- PYTEST --- >>${ERROR_LOG}
@@ -85,19 +105,24 @@ wait ${codespell_pid} || {
 }
 
 kill ${animate_pid}
+animate_pid=""
+
 clear
 [ -e "${ERROR_LOG}" ] && {
   cat ${ERROR_LOG}
   echo "--- DONE ---"
 }
 
-printf "pytest: %b pyright: %b spell: %b" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}"
+printf "pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000\n" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE})"
 inotifywait -t 0 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
 kill_pid=$!
-trap "kill ${kill_pid}" EXIT
 wait ${kill_pid}
 sleep 1
 
 if [ "${reload}" = "Y" ]; then
-  $0 $* &
+  echo RELOADING
+  sleep 1
+  TMP_DIR=${TMP_DIR} API_PID=${API_PID} $0 $* &
+else
+  echo TERMINATED
 fi

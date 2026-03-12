@@ -1,7 +1,6 @@
 import json
 import os
 
-
 class Config:
 
     DB_CONNECTION_STRING: str = "sqlite:///:memory:"
@@ -20,7 +19,7 @@ class Config:
     def _load(self, filename: str) -> None:
         if os.path.isfile(filename):
             with open(filename, "r") as f:
-                self._connection_string = json.load(f)["connection_string"]
+                self._connection_string = json.load(fp=f)["connection_string"]
 
     @property
     def connection_string(self) -> str:
