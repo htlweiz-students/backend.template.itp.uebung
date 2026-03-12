@@ -19,25 +19,30 @@ reload="Y"
 
 on_term() {
   reload="N"
-  echo TERMINATING
-  kill $(cat ${API_PID_FILE})
-  wait $(cat ${API_PID_FILE})
-  rm ${API_PID_FILE}
-  [ -n "${animate_pid}" ] && kill -9 ${animate_pid}
-  [ -n "${kill_pid}" ] && kill -9 ${kill_pid}
+  [ -f ${API_PID_FILE} ] && kill $(cat ${API_PID_FILE})
+  [ -f ${API_PID_FILE} ] && wait $(cat ${API_PID_FILE})
+  [ -n "${animate_pid}" ] && kill -9 ${animate_pid} >/dev/null 2>&1
+  [ -n "${kill_pid}" ] && kill -9 ${kill_pid} >/dev/null 2>&1
 }
 
 trap on_term TERM INT KILL
 
 . ./venv/bin/activate
 
-if [ -f "${API_PID_FILE}" ]; then
-  echo API ALREADY running
-  sleep 4
-else
-  CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn BACKEND_NAME_PLACEHOLDER.main:app --reload --reload-dir BACKEND_NAME_PLACEHOLDER &
-  echo $! >${API_PID_FILE}
-fi
+start_api() {
+  if [ -f "${API_PID_FILE}" ]; then
+    echo API ALREADY running
+    sleep 4
+  else
+    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn BACKEND_NAME_PLACEHOLDER.main:app --reload --reload-dir BACKEND_NAME_PLACEHOLDER &
+    pid=$!
+    echo ${pid} >${API_PID_FILE}
+    wait ${pid}
+    rm ${API_PID_FILE}
+  fi
+}
+
+start_api &
 
 animate_sleep() {
   sleep 0.05 || sleep 1
@@ -113,7 +118,7 @@ clear
   echo "--- DONE ---"
 }
 
-printf "pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000\n" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE})"
+printf "pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000/docs/\n" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
 inotifywait -t 0 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
 kill_pid=$!
 wait ${kill_pid}
@@ -122,7 +127,7 @@ sleep 1
 if [ "${reload}" = "Y" ]; then
   echo RELOADING
   sleep 1
-  TMP_DIR=${TMP_DIR} API_PID=${API_PID} $0 $* &
+  TMP_DIR=${TMP_DIR} $0 $*
 else
   echo TERMINATED
 fi
