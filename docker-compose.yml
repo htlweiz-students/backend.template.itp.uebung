@@ -17,6 +17,16 @@ services:
     ports:
       - "5432:5432"
 
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION_STRING: postgresql://postgres:changethis@db/template
+    depends_on:
+      db:
+        condition: service_healthy
+
   adminer:
     image: adminer
     restart: always

@@ -14,10 +14,11 @@ class Config:
         if file_name in Config.__instances:
             raise RuntimeError("Don't Call constructor!")
         Config.__instances[file_name] = self
+        self._connection_string: str = os.environ.get(
+            "DB_CONNECTION_STRING", Config.DB_CONNECTION_STRING
+        )
         if file_name:
             self._load(file_name)
-        else:
-            self._connection_string: str = Config.DB_CONNECTION_STRING
 
     def _load(self, filename: str) -> None:
         if os.path.isfile(filename):

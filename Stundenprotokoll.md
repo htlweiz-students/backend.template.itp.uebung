@@ -4,3 +4,8 @@
 
 # Einheit am 26.2.2026
 - Grundlegende Dinge im programmiert (models, schemas, api calls)
+
+# Einheit am 26.2.2026
+- Umstellen auf backend also namens Änderungen
+- anpassungen routen etc.
+  

@@ -1,6 +1,5 @@
 from ._entity import EntityBase, EntityFull
-from ._todo import TodoCreate, TodoResponse, TodoUpdate
-from ._todo import Token, UserLogin, UserRegister
+from ._todo import TodoCreate, TodoResponse, TodoUpdate, UserRegister, UserResponse
 
 __all__ = [
     "EntityBase",
@@ -8,7 +7,6 @@ __all__ = [
     "TodoCreate",
     "TodoResponse",
     "TodoUpdate",
-    "Token",
-    "UserLogin",
     "UserRegister",
+    "UserResponse",
 ]

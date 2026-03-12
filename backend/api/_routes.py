@@ -1,24 +1,18 @@
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from backend.api._auth import (
-    create_access_token,
-    decode_token,
-    hash_password,
-    verify_password,
-)
+from backend.api._auth import hash_password, verify_password
 from backend.crud import Crud
 from backend.engine import get_engine
 from backend.schema import (
     TodoCreate,
     TodoResponse,
     TodoUpdate,
-    Token,
-    UserLogin,
     UserRegister,
+    UserResponse,
 )
 
-security = HTTPBearer()
+security = HTTPBasic()
 
 _crud: Crud | None = None
 
@@ -26,28 +20,28 @@ _crud: Crud | None = None
 def get_crud() -> Crud:
     global _crud
     if not _crud:
-        # For PostgreSQL: get_engine("local_postgres_config.json")
-        _crud = Crud(get_engine())
+        _crud = Crud(get_engine("local_postgres_config.json"))
     return _crud
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPBasicCredentials = Depends(security),
     crud: Crud = Depends(get_crud),
 ) -> str:
-    user_name = decode_token(credentials.credentials)
-    if not user_name:
+    user = crud.get_user(credentials.username)
+    if not user or not user.password_hash:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
         )
-    user = crud.get_user(user_name)
-    if not user:
+    if not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
         )
-    return user_name
+    return credentials.username
 
 
 def define_routes(app: FastAPI) -> None:
@@ -58,7 +52,7 @@ def define_routes(app: FastAPI) -> None:
 
     # --- auth ---
 
-    @app.post("/auth/register", response_model=Token)
+    @app.post("/auth/register", response_model=UserResponse)
     def register(body: UserRegister, crud: Crud = Depends(get_crud)):
         if crud.get_user(body.user_name):
             raise HTTPException(
@@ -66,25 +60,8 @@ def define_routes(app: FastAPI) -> None:
                 detail="Username already taken",
             )
         password_hash = hash_password(body.password)
-        crud.create_user(body.user_name, password_hash, body.name)
-        token = create_access_token(body.user_name)
-        return Token(access_token=token, token_type="bearer")
-
-    @app.post("/auth/login", response_model=Token)
-    def login(body: UserLogin, crud: Crud = Depends(get_crud)):
-        user = crud.get_user(body.user_name)
-        if not user or not user.password_hash:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
-            )
-        if not verify_password(body.password, user.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
-            )
-        token = create_access_token(body.user_name)
-        return Token(access_token=token, token_type="bearer")
+        user = crud.create_user(body.user_name, password_hash, body.name)
+        return user
 
     # --- todos ---
 
@@ -95,7 +72,7 @@ def define_routes(app: FastAPI) -> None:
     ):
         return crud.get_todos(user_name)
 
-    @app.post("/todos", response_model=TodoResponse, status_code=201)
+    @app.post("/todos", response_model=TodoResponse)
     def create_todo(
         body: TodoCreate,
         user_name: str = Depends(get_current_user),
@@ -116,10 +93,9 @@ def define_routes(app: FastAPI) -> None:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Todo not found",
             )
-        todo = crud.update_todo(todo_id, body.done)
-        return todo
+        return crud.update_todo(todo_id, body.done)
 
-    @app.delete("/todos/{todo_id}", status_code=204)
+    @app.delete("/todos/{todo_id}", response_model=TodoResponse)
     def delete_todo(
         todo_id: int,
         user_name: str = Depends(get_current_user),
@@ -131,4 +107,4 @@ def define_routes(app: FastAPI) -> None:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Todo not found",
             )
-        crud.delete_todo(todo_id)
+        return crud.delete_todo(todo_id)

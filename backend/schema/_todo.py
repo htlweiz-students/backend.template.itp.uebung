@@ -23,11 +23,7 @@ class UserRegister(BaseModel):
     name: str
 
 
-class UserLogin(BaseModel):
+class UserResponse(BaseModel):
     user_name: str
-    password: str
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+    model_config = {"from_attributes": True}

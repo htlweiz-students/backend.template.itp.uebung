@@ -81,11 +81,11 @@ class Crud:
             session.refresh(todo)
             return todo
 
-    def delete_todo(self, todo_id: int) -> bool:
+    def delete_todo(self, todo_id: int) -> Todo | None:
         with Session(self._engine) as session:
             todo = session.get(Todo, todo_id)
             if not todo:
-                return False
+                return None
             session.delete(todo)
             session.commit()
-            return True
+            return todo

@@ -34,11 +34,10 @@ classifiers = [
 ]
 
 dependencies = [
+  "bcrypt>=4",
   "fastapi[standard]>=0.120",
-  "passlib[bcrypt]>=1.7",
   "psycopg2-binary>=2.9",
   "pydantic>=2",
-  "python-jose>=3.5",
   "sqlalchemy>=2",
   "uvicorn",
 ]
