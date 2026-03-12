@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 
@@ -9,7 +11,7 @@ class Config:
     __instances: dict[str, Config] = {}
 
     def __init__(self, file_name: str = ""):
-        if str in Config.__instances:
+        if file_name in Config.__instances:
             raise RuntimeError("Don't Call constructor!")
         Config.__instances[file_name] = self
         if file_name:

@@ -1,15 +1,15 @@
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from BACKEND_NAME_PLACEHOLDER.api._auth import (
+from backend.api._auth import (
     create_access_token,
     decode_token,
     hash_password,
     verify_password,
 )
-from BACKEND_NAME_PLACEHOLDER.crud import Crud
-from BACKEND_NAME_PLACEHOLDER.engine import get_engine
-from BACKEND_NAME_PLACEHOLDER.schema import (
+from backend.crud import Crud
+from backend.engine import get_engine
+from backend.schema import (
     TodoCreate,
     TodoResponse,
     TodoUpdate,
@@ -103,7 +103,7 @@ def define_routes(app: FastAPI) -> None:
     ):
         return crud.create_todo(user_name, body.title)
 
-    @app.patch("/todos/{todo_id}", response_model=TodoResponse)
+    @app.put("/todos/{todo_id}", response_model=TodoResponse)
     def update_todo(
         todo_id: int,
         body: TodoUpdate,

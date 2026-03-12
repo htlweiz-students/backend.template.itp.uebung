@@ -8,7 +8,7 @@ requires = [
 [project]
 authors = [ { name = "Robert Ulmer", email = "rulmer@lr.htlweiz.at" } ]
 
-name = "BACKEND_NAME_PLACEHOLDER"
+name = "backend"
 version = "0.0.1"
 description = "Backend description:"
 readme = "README.md"
@@ -34,22 +34,22 @@ classifiers = [
 ]
 
 dependencies = [
-  "fastapi>=0.120",
+  "fastapi[standard]>=0.120",
   "passlib[bcrypt]>=1.7",
   "psycopg2-binary>=2.9",
   "pydantic>=2",
   "python-jose>=3.5",
   "sqlalchemy>=2",
-  "uvicorn"
+  "uvicorn",
 ]
 
 [project.scripts]
-BACKEND_NAME_PLACEHOLDER_test = "BACKEND_NAME_PLACEHOLDER.utils:test"
-BACKEND_NAME_PLACEHOLDER_user = "BACKEND_NAME_PLACEHOLDER.utils:user_main"
+backend_test = "backend.utils:test"
+backend_user = "backend.utils:user_main"
 
 [project.urls]
-"Homepage" = "https://BACKEND_NAME_PLACEHOLDER.com"
-"Documentation" = "https://BACKEND_NAME_PLACEHOLDER.com"
+"Homepage" = "https://backend.com"
+"Documentation" = "https://backend.com"
 
 [project.optional-dependencies]
 lint = [
