@@ -60,7 +60,7 @@ class Crud:
         with Session(self._engine) as session:
             return list(session.query(Todo).filter(Todo.user_name == user_name).all())
 
-    def create_todo(self, user_name: str, title: str) -> Todo:
+    def create_todo(self, title: str, user_name: str) -> Todo:
         with Session(self._engine) as session:
             todo = Todo()
             todo.title = title
@@ -71,12 +71,13 @@ class Crud:
             session.refresh(todo)
             return todo
 
-    def update_todo(self, todo_id: int, done: bool) -> Todo | None:
+    def update_todo(self, todo_id: int,title: str, done: bool) -> Todo | None:
         with Session(self._engine) as session:
             todo = session.get(Todo, todo_id)
             if not todo:
                 return None
             todo.done = done
+            todo.title = title
             session.commit()
             session.refresh(todo)
             return todo

@@ -6,7 +6,7 @@ import os
 
 class Config:
 
-    DB_CONNECTION_STRING: str = "sqlite:///:memory:"
+    DB_CONNECTION_STRING: str = "postgresql://postgres:changethis@localhost/template"
 
     __instances: dict[str, Config] = {}
 

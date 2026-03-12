@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class TodoCreate(BaseModel):
@@ -6,7 +7,8 @@ class TodoCreate(BaseModel):
 
 
 class TodoUpdate(BaseModel):
-    done: bool
+    title: Optional[str] | None
+    done: Optional[bool] | None
 
 
 class TodoResponse(BaseModel):

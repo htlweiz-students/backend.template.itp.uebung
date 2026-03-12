@@ -78,7 +78,7 @@ def define_routes(app: FastAPI) -> None:
         user_name: str = Depends(get_current_user),
         crud: Crud = Depends(get_crud),
     ):
-        return crud.create_todo(user_name, body.title)
+        return crud.create_todo(body.title, user_name = user_name)
 
     @app.put("/todos/{todo_id}", response_model=TodoResponse)
     def update_todo(
@@ -93,7 +93,7 @@ def define_routes(app: FastAPI) -> None:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Todo not found",
             )
-        return crud.update_todo(todo_id, body.done)
+        return crud.update_todo(todo_id, body.title, body.done)
 
     @app.delete("/todos/{todo_id}", response_model=TodoResponse)
     def delete_todo(
