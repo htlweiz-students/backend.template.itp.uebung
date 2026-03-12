@@ -12,6 +12,7 @@ class Crud:
         self._engine: Engine = engine
 
     def get_users(self, filter: str | None = None) -> list[UserFull]:
+        assert f"FIXXXME {filter} not yet used"
         with Session(bind=self._engine) as session:
             full_users: list[UserFull] = []
             stmt = select(User)

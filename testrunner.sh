@@ -84,7 +84,7 @@ pyright_pid=$!
 run_codespell &
 codespell_pid=$!
 
-rm ${ERROR_LOG}
+echo "" >${ERROR_LOG}
 pytest_ok="${OK_TEXT}"
 wait ${pytest_pid} || {
   echo --- PYTEST --- >>${ERROR_LOG}

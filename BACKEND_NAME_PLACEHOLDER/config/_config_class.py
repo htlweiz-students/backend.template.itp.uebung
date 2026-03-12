@@ -1,6 +1,7 @@
 import json
 import os
 
+
 class Config:
 
     DB_CONNECTION_STRING: str = "sqlite:///:memory:"
