@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException
 
+from ..config import get_logger
+
 from ..crud import Crud
 from ..schema import EntityBase, EntityFilter, EntityFull
 
+log = get_logger()
 
 def define_routes(app: FastAPI, crud: Crud) -> None:
     """Defines the routes for the application."""
@@ -91,6 +94,10 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
         :param id: The unique identifier of the entity to be deleted.
         :return: None, as this function does not return a value upon successful execution.
         """
-        crud.delete_entity(id)
+        try:
+            crud.delete_entity(id)
+        except AttributeError as e:
+            log.error("No such entity {id}!")
+            raise HTTPException(404, str(e))
 
     assert delete_entity
