@@ -2,7 +2,7 @@
 
 cd $(dirname $0)
 
-MODULE_NAME=$(dirname $(find . -name main.py))
+MODULE_NAME=$(basename $(dirname $(find . ! -path "./build/*" ! -path "./venv/*" -name main.py)))
 
 [ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d)
 [ -d "${TMP_DIR}" ] || exit 1
@@ -119,7 +119,7 @@ clear
   echo "--- DONE ---"
 }
 
-printf "pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000/docs/\n" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
+printf "API_NAME: %s pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000/docs/\n" "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
 inotifywait -t 0 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
 kill_pid=$!
 wait ${kill_pid}
