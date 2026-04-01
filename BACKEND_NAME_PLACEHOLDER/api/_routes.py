@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 
 from ..config import get_logger
-
 from ..crud import Crud
 from ..schema import EntityBase, EntityFilter, EntityFull
 
 log = get_logger()
+
 
 def define_routes(app: FastAPI, crud: Crud) -> None:
     """Defines the routes for the application."""
@@ -14,18 +14,17 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
     async def get_root():
         """
         This function returns an empty dictionary, representing the root of the API.
-    
+
         Returns:
             A dictionary with one key "/" and value "api_root".
-    
+
         Example:
             >>> await get_root()
             {'/': 'api_root'}
         """
         return {"": {"/": "api_root"}}
-    
-    assert get_root
 
+    assert get_root
 
     @app.get(path="/entity/", response_model=list[EntityFull])
     async def get_entities(search_string: str | None = None) -> list[EntityFull]:
@@ -73,11 +72,12 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
     @app.post(path="/entity/", response_model=EntityFull)
     async def post_entity(entity: EntityBase) -> EntityFull:
         """
-        Creates a new entity based on the provided entity base and returns the created entity's response object.
-    
+        Creates a new entity based on the provided entity base and returns the created entity's
+        response object.
+
         Args:
             entity (EntityBase): The entity to be created with required fields filled.
-    
+
         Returns:
             EntityResponse: Response object containing details of the created entity.
         """
@@ -85,14 +85,16 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
 
     assert post_entity
 
-    @app.delete(path="/entity/{id}/")
-    async def delete_entity(id: int) -> None:
+    @app.delete("/entity/{id}/", response_model=None)
+    async def delete_entity(id: int):
         """
-        Deletes an entity based on the provided ID. This function utilizes the CRUD (Create, Read, Update, Delete) operations
-        to perform deletion of the specified entity.
-    
-        :param id: The unique identifier of the entity to be deleted.
-        :return: None, as this function does not return a value upon successful execution.
+        Deletes an entity with the given id.
+
+        Args:
+            id (int): The ID of the entity to be deleted.
+
+        Raises:
+            HTTPException: If the entity does not exist or an AttributeError occurs.
         """
         try:
             crud.delete_entity(id)
