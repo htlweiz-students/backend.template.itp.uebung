@@ -13,8 +13,8 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
     assert get_root
 
     @app.get(path="/entity/")
-    def get_entities(searchstring: str | None = None) -> list[EntityFull]:
-        filter = EntityFilter(name=searchstring, id=None)
+    def get_entities(search_string: str | None = None) -> list[EntityFull]:
+        filter = EntityFilter(name=search_string, id=None)
         return crud.get_entities(filter)
 
     assert get_entities
