@@ -12,6 +12,7 @@ _crud: Crud | None = None
 
 
 def build_app():
+
     global _crud
     if not _crud:
         config_file = ""

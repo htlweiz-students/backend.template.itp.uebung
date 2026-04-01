@@ -1,10 +1,13 @@
-from sqlalchemy import Engine
+from sqlalchemy import Engine, delete
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
+from BACKEND_NAME_PLACEHOLDER.config import get_logger
 from BACKEND_NAME_PLACEHOLDER.model import Entity, Person, User
 from BACKEND_NAME_PLACEHOLDER.schema import (EntityBase, EntityFilter,
                                              EntityFull, UserBase, UserFull)
+
+log = get_logger()
 
 
 class Crud:
@@ -31,6 +34,17 @@ class Crud:
         if not filter:
             return []
         return []
+
+    def delete_entity(self, id: int) -> None:
+        with Session(bind=self._engine) as session:
+            stmt = delete(Entity).where(Entity.id.is_(id))
+            result = session.execute(stmt)
+            log.error(f"Result Type is: {type(result)}")
+            if (
+                not result.rowcount  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]
+            ):
+                raise AttributeError(f"Entity id=={id} does not exist!")
+            session.commit()
 
     def get_entities(self, filter: EntityFilter | None = None) -> list[EntityFull]:
         with Session(bind=self._engine) as session:

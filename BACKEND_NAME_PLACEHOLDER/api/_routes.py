@@ -35,3 +35,9 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
         return crud.create_entity(entity)
 
     assert post_entity
+
+    @app.delete(path="/entity/{id}/")
+    def delete_entity(id: int):
+        crud.delete_entity(id)
+
+    assert delete_entity
