@@ -51,7 +51,6 @@ animate_sleep() {
 }
 
 animate() {
-  # thiss is a misspelled comment
   while true; do
     printf '\r-'
     animate_sleep
