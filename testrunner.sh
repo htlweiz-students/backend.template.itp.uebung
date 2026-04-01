@@ -4,7 +4,10 @@ cd $(dirname $0)
 
 MODULE_NAME=$(basename $(dirname $(find . ! -path "./build/*" ! -path "./venv/*" -name main.py)))
 
-[ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d)
+[ -z "${TMPDIR}" ] && TMPDIR=/tmp
+TMP_DIR_PREFIX="${TMPDIR}/${MODULE_NAME}"
+mkdir -p ${TMP_DIR_PREFIX}
+[ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d "${TMPDIR}/${MODULE_NAME}/XXX")
 [ -d "${TMP_DIR}" ] || exit 1
 
 OK_TEXT="\e[32m OK \e[0m"
@@ -131,4 +134,5 @@ if [ "${reload}" = "Y" ]; then
   TMP_DIR=${TMP_DIR} $0 $*
 else
   echo TERMINATED
+  rm -rf ${TMP_DIR}
 fi
