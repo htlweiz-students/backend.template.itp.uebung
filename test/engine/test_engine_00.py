@@ -1,9 +1,14 @@
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
-from BACKEND_NAME_PLACEHOLDER.config import Config
-from BACKEND_NAME_PLACEHOLDER.engine import get_engine
-from BACKEND_NAME_PLACEHOLDER.model import Entity, Person, User
+from .. import test_module
+
+Config = test_module.config.Config
+Entity = test_module.model.Entity
+Person = test_module.model.Person
+User = test_module.model.User
+
+get_engine = test_module.engine.get_engine
 
 EXPECTED_TABLE_NAMES = [
     "entities",

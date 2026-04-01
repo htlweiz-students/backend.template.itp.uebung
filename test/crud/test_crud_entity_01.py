@@ -1,7 +1,11 @@
-from BACKEND_NAME_PLACEHOLDER.crud import Crud
-from BACKEND_NAME_PLACEHOLDER.engine import get_engine
-from BACKEND_NAME_PLACEHOLDER.schema import (EntityBase, EntityFilter,
-                                             EntityFull)
+from .. import test_module
+
+Crud = test_module.crud.Crud
+EntityBase = test_module.schema.EntityBase
+EntityFilter = test_module.schema.EntityFilter
+EntityFull = test_module.schema.EntityFull
+
+get_engine = test_module.engine.get_engine
 
 NAME_01 = "Entity01"
 NAME_02 = "Entity02"

@@ -2,6 +2,8 @@
 
 cd $(dirname $0)
 
+MODULE_NAME=$(dirname $(find . -name main.py))
+
 [ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d)
 [ -d "${TMP_DIR}" ] || exit 1
 
@@ -34,7 +36,7 @@ start_api() {
     echo API ALREADY running
     sleep 4
   else
-    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn BACKEND_NAME_PLACEHOLDER.main:app --reload --reload-dir BACKEND_NAME_PLACEHOLDER &
+    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn ${MODULE_NAME}.main:app --reload --reload-dir ${MODULE_NAME} &
     pid=$!
     echo ${pid} >${API_PID_FILE}
     wait ${pid}

@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
-from BACKEND_NAME_PLACEHOLDER.crud import Crud
-from BACKEND_NAME_PLACEHOLDER.schema import (EntityBase, EntityFilter,
-                                             EntityFull)
+from ..crud import Crud
+from ..schema import EntityBase, EntityFilter, EntityFull
 
 
 def define_routes(app: FastAPI, crud: Crud) -> None:

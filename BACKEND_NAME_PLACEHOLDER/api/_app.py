@@ -2,9 +2,8 @@ import os
 
 from fastapi import FastAPI
 
-from BACKEND_NAME_PLACEHOLDER.crud import Crud
-from BACKEND_NAME_PLACEHOLDER.engine import get_engine
-
+from ..crud import Crud
+from ..engine import get_engine
 from ._routes import define_routes
 
 _app: FastAPI | None = None

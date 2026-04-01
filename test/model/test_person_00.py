@@ -1,4 +1,6 @@
-from BACKEND_NAME_PLACEHOLDER.model import Person
+from .. import test_module
+
+Person = test_module.model.Person
 
 TEST_ID_01 = 1
 TEST_FIRST_NAME_01 = "John"

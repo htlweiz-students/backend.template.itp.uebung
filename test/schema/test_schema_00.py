@@ -1,5 +1,8 @@
-from BACKEND_NAME_PLACEHOLDER.schema import (EntityBase, EntityFilter,
-                                             EntityFull)
+from .. import test_module
+
+EntityBase = test_module.schema.EntityBase
+EntityFilter = test_module.schema.EntityFilter
+EntityFull = test_module.schema.EntityFull
 
 
 def test_entity_00():

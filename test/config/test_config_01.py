@@ -1,6 +1,8 @@
 import os
 
-from BACKEND_NAME_PLACEHOLDER.config import Config
+from .. import test_module
+
+Config = test_module.config.Config
 
 
 def test_config_load_file_01():

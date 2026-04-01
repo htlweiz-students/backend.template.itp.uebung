@@ -1,4 +1,6 @@
-from BACKEND_NAME_PLACEHOLDER.model import Entity
+from .. import test_module
+
+Entity = test_module.model.Entity
 
 TEST_ID_01 = 1
 TEST_NAME_01 = "TEST ENTITY 1"
