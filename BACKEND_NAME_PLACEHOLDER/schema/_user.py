@@ -1,7 +1,7 @@
 """
 Module containing User data models for application.
 
-This module defines two classes: UserBase and UserFull, both derived from Pydantic's BaseModel.
+This module defines two classes: UserBase and UserFull, both derived from Pydantic BaseModel.
 These classes represent the structure of user data in the application, with UserBase as a base model
 containing common attributes like user_name, name, and password_hash, and UserFull extending it by
 adding an id attribute.
