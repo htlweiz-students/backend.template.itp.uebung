@@ -55,6 +55,9 @@ class CrudEntity(CrudBase):
             A list of EntityFull objects.
         """
         with Session(bind=self._engine) as session:
+            log.debug(f"get_entities called with filter: {filter}")
+            log.info(f"Log level: {log.level}")
+            log.error("This is an error")
             full_entities: list[EntityFull] = []
             stmt = select(Entity)
             if filter and filter.name:

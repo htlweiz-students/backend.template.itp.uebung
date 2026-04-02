@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI
 
 from ..crud import Crud
@@ -29,10 +27,7 @@ def build_app():
     creates an engine using that.
     """
     if not _crud:
-        config_file = ""
-        if "CONFIG_FILE" in os.environ:
-            config_file = os.environ["CONFIG_FILE"]
-        engine = get_engine(config_file)
+        engine = get_engine()
         _crud = Crud(engine)
 
     global _app

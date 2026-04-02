@@ -19,7 +19,10 @@ ERROR_LOG="${TMP_DIR}/error.log"
 API_LOG="${TMP_DIR}/api.log"
 API_PID_FILE="${TMP_DIR}/api.pid"
 CONFIG_FILE="${TMP_DIR}"/config.json
-echo "{ \"connection_string\":\"sqlite:///${TMP_DIR}/db.sqlite\" }" >${CONFIG_FILE}
+echo "{" >${CONFIG_FILE}
+echo "  \"connection_string\":\"sqlite:///${TMP_DIR}/db.sqlite\"," >>${CONFIG_FILE}
+echo "  \"log_level\":\"DEBUG\"" >>${CONFIG_FILE}
+echo "}" >>${CONFIG_FILE}
 reload="Y"
 
 on_term() {
@@ -39,7 +42,7 @@ start_api() {
     echo API ALREADY running
     sleep 4
   else
-    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn ${MODULE_NAME}.main:app --reload --reload-dir ${MODULE_NAME} &
+    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn ${MODULE_NAME}.main:app --reload --reload-dir ${MODULE_NAME} >${API_LOG} 2>&1 &
     pid=$!
     echo ${pid} >${API_PID_FILE}
     wait ${pid}

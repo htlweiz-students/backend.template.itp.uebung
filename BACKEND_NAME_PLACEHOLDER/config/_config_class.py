@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 """
@@ -26,6 +27,9 @@ class Config:
     DB_CONNECTION_STRING: str = "sqlite:///:memory:"
     __instances: dict[str, Config] = {}
 
+    KEY_CONNECTION_STRING: str = "connection_string"
+    KEY_LOG_LEVEL: str = "log_level"
+
     def __init__(self, file_name: str = ""):
         if file_name in Config.__instances:
             raise RuntimeError("Don't Call constructor!")
@@ -33,12 +37,21 @@ class Config:
         if file_name:
             self._load(file_name)
         else:
+            self._log_level: int | None = None
             self._connection_string: str = Config.DB_CONNECTION_STRING
 
     def _load(self, filename: str) -> None:
         if os.path.isfile(filename):
             with open(filename, "r") as f:
-                self._connection_string = json.load(fp=f)["connection_string"]
+                config_file: dict[str, str] = json.load(f)  # pyright: ignore[reportAny]
+                self._connection_string = config_file[Config.KEY_CONNECTION_STRING]
+                level_name: str | None = None
+                if Config.KEY_LOG_LEVEL in config_file:
+                    level_name = config_file[Config.KEY_LOG_LEVEL]
+                if level_name and type(level_name) == str:
+                    level_mappings = logging.getLevelNamesMapping()
+                    if level_name in level_mappings:
+                        self._log_level = level_mappings[level_name]
 
     """
     Get the current connection string.
@@ -51,6 +64,16 @@ class Config:
     def connection_string(self) -> str:
         return self._connection_string
 
+    """
+    Get the current log_level.
+    Returns:
+        str | None: The log level or None, if not specified.
+    """
+
+    @property
+    def log_level(self) -> int | None:
+        return self._log_level
+
     @classmethod
     def get_instance(cls, file_name: str = "") -> Config:
         """
@@ -61,6 +84,8 @@ class Config:
         :param file_name: The file name of the configuration file (optional)
         :return: An instance of the Config class
         """
+        if not file_name and "CONFIG_FILE" in os.environ:
+            file_name = os.environ["CONFIG_FILE"]
         if file_name in cls.__instances:
             return cls.__instances[file_name]
         return Config(file_name)
