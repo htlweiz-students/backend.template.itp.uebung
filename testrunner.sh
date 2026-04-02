@@ -140,7 +140,7 @@ repaint() {
     cat ${ERROR_LOG}
   }
   # \e[31mFAIL\e[0m"
-  printf "API_NAME: %s pytest: %b pyright: %b spell: %b %b TMP_DIR: \e[33mfile://%s/\e[0m " "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "$(get_api_text)" "${TMP_DIR}"
+  printf "API_NAME: \e[33m%s\e[0m pytest: %b pyright: %b spell: %b %b TMP_DIR: \e[33mfile://%s/\e[0m " "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "$(get_api_text)" "${TMP_DIR}"
 }
 
 monitor() {
