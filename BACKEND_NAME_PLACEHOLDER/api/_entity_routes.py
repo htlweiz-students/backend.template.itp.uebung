@@ -69,6 +69,27 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
 
     assert post_entity
 
+    @app.put(path="/entity/{id}/")
+    async def put_entity(entity: EntityFull):
+        """
+        Changes an entity based on the provided entity full
+
+        Args:
+            entity (EntityFull): The entity to be changed with required fields filled.
+
+        Returns:
+            None
+
+        Raises:
+            AttributeError on invalid values
+        """
+        try:
+            crud.change_entity(entity)
+        except AttributeError as e:
+            log.error(f"ERROR: {e}")
+            raise HTTPException(status_code=404, detail=str(e))
+    assert put_entity
+
     @app.delete("/entity/{id}/", response_model=None)
     async def delete_entity(id: int):
         """

@@ -59,9 +59,8 @@ class CrudUsers(CrudEntity):
             if existing_entity:
                 entity = self._get_entity(session, existing_entity)
                 if not entity:
-                    raise AttributeError(
-                        f"Entity with id {existing_entity.id} does not exist!"
-                    )
+                    raise AttributeError(ERROR_MESSAGES.NO_SUCH_ID % (Entity.__name__, existing_entity.id)
+                )
                 if new_user.name:
                     entity.name = new_user.name
             if not entity:

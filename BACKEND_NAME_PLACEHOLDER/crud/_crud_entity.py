@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from ..config import get_logger
@@ -18,6 +18,28 @@ methods to handle entities in a database context.
 
 
 class CrudEntity(CrudBase):
+    def change_entity(self, entity: EntityFull):
+        """
+        Change a Entity object in the database.
+
+        Args:
+            entity (EntityBase): The updated data for the entity.
+
+        Returns:
+            None
+
+        Raises:
+            AttributeError on invalid id.
+        """
+        with Session(bind=self._engine) as session:
+            stmt = update(Entity).where(Entity.id==entity.id).values(name=entity.name)
+            result = session.execute(stmt) 
+            if (
+                not result.rowcount  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]
+            ):
+                raise AttributeError(ERROR_MESSAGES.NO_SUCH_ID % (Entity.__name__, entity.id))
+            session.commit()
+
 
     def delete_entity(self, id: int) -> None:
         """

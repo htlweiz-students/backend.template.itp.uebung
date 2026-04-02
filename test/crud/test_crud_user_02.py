@@ -1,3 +1,4 @@
+import re
 import pytest
 
 from .. import test_module
@@ -42,7 +43,7 @@ def test_crud_user_02():
     assert entity.id
     entity.id += 1
 
-    with pytest.raises(AttributeError, match="Entity with id 2 does not exist!"):
+    with pytest.raises(AttributeError, match=re.escape("No such Entity(id: 2, ...)!")):
         user_base = UserBase(user_name="ulmer", name="", password_hash="secret")
         _user = crud.create_user(user_base, entity)
 

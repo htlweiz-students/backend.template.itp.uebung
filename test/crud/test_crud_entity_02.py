@@ -1,3 +1,5 @@
+import re
+import pytest
 from .. import test_module
 
 Crud = test_module.crud.Crud
@@ -53,10 +55,5 @@ def test_crud_entity_03() -> None:
     entity_full: EntityFull = crud.create_entity(new_entity=entity_base)
     assert entity_full.id
     assert len(crud.get_entities()) == 1
-    try:
+    with pytest.raises(AttributeError,match=re.escape("No such Entity(id: 2, ...)!")):
         crud.delete_entity(entity_full.id + 1)
-        assert None == "This should have raised an exception"
-    except AttributeError as e:
-        assert str(e) == f"No such Entity(id: {entity_full.id+1}, ...)!"
-    except Exception as e:
-        raise

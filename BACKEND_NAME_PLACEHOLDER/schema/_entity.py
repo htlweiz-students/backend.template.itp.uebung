@@ -55,5 +55,5 @@ class EntityFilter(BaseModel):
         id (int | None): The optional identifier to filter by.
     """
 
-    name: str | None
-    id: int | None
+    name: str | None = None
+    id: int | None = None
