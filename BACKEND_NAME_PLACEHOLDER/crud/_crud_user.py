@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from ..config import get_logger
@@ -38,7 +38,9 @@ class CrudUsers(CrudEntity):
                 raise AttributeError(ERROR_MESSAGES.NO_SUCH_ID % (User.__name__, id))
             session.commit()
 
-    def create_user(self, new_user: UserBase, existing_entity: EntityFull | None = None) -> UserFull:
+    def create_user(
+        self, new_user: UserBase, existing_entity: EntityFull | None = None
+    ) -> UserFull:
         """
         Creates a new UserFull object in the database by saving a new User object and associating it with an EntityBase.
 
@@ -52,17 +54,20 @@ class CrudUsers(CrudEntity):
             user = User()
             user.user_name = new_user.user_name
             user.password_hash = new_user.password_hash
-            
+
             entity: Entity | None = None
             if existing_entity:
                 entity = self._get_entity(session, existing_entity)
                 if not entity:
-                    raise AttributeError(f"Entity with id {existing_entity.id} does not exist!")
-                if new_user.name: entity.name = new_user.name
-            if not entity: 
+                    raise AttributeError(
+                        f"Entity with id {existing_entity.id} does not exist!"
+                    )
+                if new_user.name:
+                    entity.name = new_user.name
+            if not entity:
                 new_entity = EntityBase(name=new_user.name)
                 entity = self._create_entity(session, new_entity)
-           
+
             user.entity = entity
             session.add(user)
             session.commit()

@@ -19,7 +19,7 @@ def get_logger(name: str = __name__):
         logging.Logger: The instantiated logger object.
     """
     logger = logging.getLogger(name)
-    config =Config.get_instance()
+    config = Config.get_instance()
     if config.log_level:
         logger.setLevel(config.log_level)
     return logger
