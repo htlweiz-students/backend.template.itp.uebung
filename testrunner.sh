@@ -19,11 +19,20 @@ ERROR_LOG="${TMP_DIR}/error.log"
 API_LOG="${TMP_DIR}/api.log"
 API_PID_FILE="${TMP_DIR}/api.pid"
 CONFIG_FILE="${TMP_DIR}"/config.json
+API_URL="http://localhost:8000/docs/"
 echo "{" >${CONFIG_FILE}
 echo "  \"connection_string\":\"sqlite:///${TMP_DIR}/db.sqlite\"," >>${CONFIG_FILE}
 echo "  \"log_level\":\"DEBUG\"" >>${CONFIG_FILE}
 echo "}" >>${CONFIG_FILE}
 reload="Y"
+
+get_api_text() {
+  if [ -e "${API_PID_FILE}" ]; then
+    echo "API($(cat ${API_PID_FILE})): \e[32m${API_URL}\e[0m"
+  else
+    echo "API(): \e[31mNOT RUNNING\e[0m"
+  fi
+}
 
 on_term() {
   reload="N"
@@ -130,7 +139,8 @@ repaint() {
   [ -e "${ERROR_LOG}" ] && {
     cat ${ERROR_LOG}
   }
-  printf "API_NAME: %s pytest: %b pyright: %b spell: %b TMP_DIR: file://%s/ api_pid: %d api_url: http://localhost:8000/docs/\n" "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
+  # \e[31mFAIL\e[0m"
+  printf "API_NAME: %s pytest: %b pyright: %b spell: %b %b TMP_DIR: \e[33mfile://%s/\e[0m " "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "$(get_api_text)" "${TMP_DIR}"
 }
 
 monitor() {
