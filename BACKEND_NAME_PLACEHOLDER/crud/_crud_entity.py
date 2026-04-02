@@ -14,18 +14,20 @@ CrudEntity is an abstract class that provides a base for creating entities with 
 Update, Delete) operations. It inherits from CrudBase and extends the functionality by providing
 methods to handle entities in a database context.
 """
+
+
 class CrudEntity(CrudBase):
 
     def delete_entity(self, id: int) -> None:
         """
         Deletes an Entity by its unique ID from the database.
-        
+
         Args:
             id (int): The ID of the Entity to delete.
-        
+
         Returns:
             None
-        
+
         Raises:
             AttributeError: If the specified Entity does not exist in the database.
         """
@@ -39,18 +41,16 @@ class CrudEntity(CrudBase):
                 raise AttributeError(f"Entity id=={id} does not exist!")
             session.commit()
 
-
-    
     def get_entities(self, filter: EntityFilter | None = None) -> list[EntityFull]:
         """
         Fetches a list of EntityFull objects from the database based on provided filters.
         If no filters are provided, fetches all entities.
-        
+
         Parameters:
             - filter (EntityFilter | None): An optional filter object to narrow down the search results.
                                            If provided, only entities that match the filter criteria will
                                            be returned. If not provided, all entities will be returned.
-        
+
         Returns:
             A list of EntityFull objects.
         """
@@ -64,7 +64,6 @@ class CrudEntity(CrudBase):
             for orm_entity in session.execute(stmt).scalars().all():
                 full_entities.append(EntityFull(id=orm_entity.id, name=orm_entity.name))
             return full_entities
-
 
     def create_entity(self, new_entity: EntityBase) -> EntityFull:
         """
@@ -82,9 +81,7 @@ class CrudEntity(CrudBase):
             entity_full = EntityFull(id=entity.id, name=entity.name)
             return entity_full
 
-
     def _create_entity(self, session: Session, new_entity: EntityBase) -> Entity:
         entity = Entity(name=new_entity.name)
         session.add(entity)
         return entity
-

@@ -1,7 +1,6 @@
 from ..model import Person
 from ._crud_entity import CrudEntity
 
-
 """
 CrudPerson class for managing a database of Person entities.
 
@@ -11,10 +10,11 @@ The database is abstracted away, making it easy to switch between different data
 Methods:
     - get_persons(filter: str | None = None) -> list[Person]: Retrieves a list of Person entities based on a provided filter (optional). If no filter is provided, returns an empty list.
 """
+
+
 class CrudPerson(CrudEntity):
 
     def get_persons(self, filter: str | None = None) -> list[Person]:
         if not filter:
             return []
         return []
-

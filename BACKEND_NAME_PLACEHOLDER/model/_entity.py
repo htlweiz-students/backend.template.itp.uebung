@@ -29,4 +29,3 @@ class Entity(Base):
         "polymorphic_identity": "entities",
         "polymorphic_on": "type",
     }
-

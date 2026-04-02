@@ -55,4 +55,3 @@ class Person(Entity):
     __mapper_args__: dict[str, str] = {
         "polymorphic_identity": "persons",
     }
-

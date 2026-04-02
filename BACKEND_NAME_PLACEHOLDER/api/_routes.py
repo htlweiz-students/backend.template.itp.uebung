@@ -24,4 +24,3 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
     assert get_root
 
     define_entity_routes(app, crud)
-

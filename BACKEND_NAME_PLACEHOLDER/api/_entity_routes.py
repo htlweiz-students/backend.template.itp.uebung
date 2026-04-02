@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
-from ..schema import EntityBase, EntityFilter, EntityFull
-from ..crud import Crud
 
 from ..config import get_logger
+from ..crud import Crud
+from ..schema import EntityBase, EntityFilter, EntityFull
 
 log = get_logger()
 

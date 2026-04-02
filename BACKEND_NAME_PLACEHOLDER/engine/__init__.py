@@ -17,4 +17,3 @@ def get_engine(config_file: str = "") -> Engine:
     engine = create_engine(config.connection_string)
     Base.metadata.create_all(engine)
     return engine
-
