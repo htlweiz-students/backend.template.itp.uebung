@@ -57,3 +57,4 @@ def test_crud_user_01():
         log.debug(f"Check expected: {expected}")
         log.debug(f"result: {result}")
         assert expected == result
+

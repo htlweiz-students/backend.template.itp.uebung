@@ -57,6 +57,6 @@ def test_crud_entity_03() -> None:
         crud.delete_entity(entity_full.id + 1)
         assert None == "This should have raised an exception"
     except AttributeError as e:
-        assert str(e) == f"Entity id=={entity_full.id+1} does not exist!"
+        assert str(e) == f"No such Entity(id: {entity_full.id+1}, ...)!"
     except Exception as e:
         raise

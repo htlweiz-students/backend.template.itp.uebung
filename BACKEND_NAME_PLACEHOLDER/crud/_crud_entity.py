@@ -5,6 +5,8 @@ from ..config import get_logger
 from ..model import Entity
 from ..schema import EntityBase, EntityFilter, EntityFull
 from ._crud_base import CrudBase
+from ._error_messages import ERROR_MESSAGES
+
 
 log = get_logger()
 
@@ -38,7 +40,7 @@ class CrudEntity(CrudBase):
             if (
                 not result.rowcount  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]
             ):
-                raise AttributeError(f"Entity id=={id} does not exist!")
+                raise AttributeError(ERROR_MESSAGES.NO_SUCH_ID % (Entity.__name__, id))
             session.commit()
 
     def get_entities(self, filter: EntityFilter | None = None) -> list[EntityFull]:
@@ -88,3 +90,8 @@ class CrudEntity(CrudBase):
         entity = Entity(name=new_entity.name)
         session.add(entity)
         return entity
+
+    def _get_entity(self, session: Session, entity_full: EntityFull) -> Entity | None:
+        stmt = select(Entity).where(Entity.id==entity_full.id)
+        return session.execute(stmt).scalars().first()
+
