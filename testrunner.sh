@@ -28,7 +28,7 @@ reload="Y"
 on_term() {
   reload="N"
   [ -f ${API_PID_FILE} ] && kill $(cat ${API_PID_FILE})
-  [ -f ${API_PID_FILE} ] && wait $(cat ${API_PID_FILE})
+  # [ -f ${API_PID_FILE} ] && wait $(cat ${API_PID_FILE})
   [ -n "${animate_pid}" ] && kill -9 ${animate_pid} >/dev/null 2>&1
   [ -n "${kill_pid}" ] && kill -9 ${kill_pid} >/dev/null 2>&1
 }
@@ -96,7 +96,8 @@ pyright_pid=$!
 run_codespell &
 codespell_pid=$!
 
-echo "" >${ERROR_LOG}
+# echo "" >${ERROR_LOG}
+[ -e "${ERROR_LOG}" ] && rm ${ERROR_LOG}
 pytest_ok="${OK_TEXT}"
 wait ${pytest_pid} || {
   echo --- PYTEST --- >>${ERROR_LOG}
@@ -119,14 +120,33 @@ wait ${codespell_pid} || {
 kill ${animate_pid}
 animate_pid=""
 
-clear
-[ -e "${ERROR_LOG}" ] && {
-  cat ${ERROR_LOG}
-  echo "--- DONE ---"
+repaint() {
+  clear
+  [ -e "${API_LOG}" ] && {
+    echo "--- API LOG ---"
+    tail -n 50 ${API_LOG}
+    echo
+  }
+  [ -e "${ERROR_LOG}" ] && {
+    cat ${ERROR_LOG}
+  }
+  printf "API_NAME: %s pytest: %b pyright: %b spell: %b TMP_DIR: file://%s/ api_pid: %d api_url: http://localhost:8000/docs/\n" "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
 }
 
-printf "API_NAME: %s pytest: %b pyright: %b spell: %b TMP_DIR: %s api_pid: %d api_url: http://localhost:8000/docs/\n" "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "${TMP_DIR}" "$(cat ${API_PID_FILE} || echo api not running)"
-inotifywait -t 0 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
+monitor() {
+  repaint
+  exit_monitor="N"
+  while [ "${reload}" = "Y" ] && [ "${exit_monitor}" = "N" ]; do
+    inotifywait -t 1 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
+    src_notify_pid=$!
+    inotifywait -t 1 "${API_LOG}" -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 && repaint &
+    api_notify_pid=$!
+    wait ${src_notify_pid} && exit_monitor="Y"
+    wait ${api_notify_pid} && repaint
+  done
+}
+
+monitor &
 kill_pid=$!
 wait ${kill_pid}
 sleep 1
