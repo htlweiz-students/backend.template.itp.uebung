@@ -1,5 +1,3 @@
-import logging
-
 from .. import test_module
 
 Crud = test_module.crud.Crud
