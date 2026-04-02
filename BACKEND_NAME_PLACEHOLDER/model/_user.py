@@ -28,6 +28,14 @@ class User(Base):
 
     entity: Mapped[Entity] = relationship()
 
+    @property
+    def name(self) -> str:
+        return self.entity.name
+
+    @name.setter
+    def name(self, value:str):
+        self.entity.name=value
+
     @override
     def __repr__(self) -> str:
         return f"User(user_name='{self.user_name}', password_hash='{self.password_hash}', entity={repr(self.entity)})"

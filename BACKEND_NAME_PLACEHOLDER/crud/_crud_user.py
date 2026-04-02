@@ -18,6 +18,20 @@ database. The User objects are related to EntityBase objects through the CrudEnt
 
 class CrudUsers(CrudEntity):
 
+    def change_user(self, user: UserFull):
+        with Session(bind=self._engine) as session:
+            stmt = select(User).where(User.entity_id==user.id)
+            result = list(session.execute(stmt).scalars())
+            if len(result) != 1:
+                raise AttributeError(ERROR_MESSAGES.NO_SUCH_ID % (User.__name__, user.id))
+            change_user=result[0]
+            change_user.password_hash=user.password_hash
+            change_user.name=user.name
+            change_user.user_name=user.user_name
+            session.add(change_user)
+            session.commit()
+
+
     def delete_user(self, id: int):
         """
         Delete an existing User identified by its id.
