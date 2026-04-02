@@ -6,6 +6,9 @@ EntityFilter = test_module.schema.EntityFilter
 EntityFull = test_module.schema.EntityFull
 
 get_engine = test_module.engine.get_engine
+get_logger = test_module.config.get_logger
+
+log = get_logger()
 
 NAME_01 = "Entity01"
 NAME_02 = "Entity02"

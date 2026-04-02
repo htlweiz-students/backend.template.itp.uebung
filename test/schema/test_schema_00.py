@@ -1,5 +1,9 @@
 from .. import test_module
 
+UserBase = test_module.schema.UserBase
+UserFull = test_module.schema.UserFull
+UserFilter = test_module.schema.UserFilter
+
 EntityBase = test_module.schema.EntityBase
 EntityFilter = test_module.schema.EntityFilter
 EntityFull = test_module.schema.EntityFull
@@ -34,5 +38,15 @@ def test_entity_01():
     assert entity_filter_copy == entity_filter
 
 
-def test_fail():
-    assert True
+def test_user_00():
+    user_filter = UserFilter(name="%search_string%", id=1)
+    user_filter_copy = eval(repr(user_filter))  # pyright: ignore [reportAny]
+    assert user_filter == user_filter_copy
+
+    user_filter = UserFilter(user_name="%search_string%", id=1)
+    user_filter_copy = eval(repr(user_filter))  # pyright: ignore [reportAny]
+    assert user_filter == user_filter_copy
+
+    user_filter = UserFilter(name="%search_string%", use_and=False, id=1)
+    user_filter_copy = eval(repr(user_filter))  # pyright: ignore [reportAny]
+    assert user_filter == user_filter_copy
