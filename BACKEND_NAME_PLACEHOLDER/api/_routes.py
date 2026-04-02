@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from ..crud import Crud
 from ._entity_routes import define_routes as define_entity_routes
-
+from ._user_routes import define_routes as define_user_routes
 
 def define_routes(app: FastAPI, crud: Crud) -> None:
     """Defines the routes for the application."""
@@ -24,3 +24,4 @@ def define_routes(app: FastAPI, crud: Crud) -> None:
     assert get_root
 
     define_entity_routes(app, crud)
+    define_user_routes(app, crud)
