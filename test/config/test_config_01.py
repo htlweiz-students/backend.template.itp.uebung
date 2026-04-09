@@ -1,6 +1,12 @@
 import os
 
+<<<<<<< HEAD
 from backend.config import Config
+=======
+from .. import test_module
+
+Config = test_module.config.Config
+>>>>>>> 1f2313428b552dff69506b19f1338c50af95d58e
 
 
 def test_config_load_file_01():

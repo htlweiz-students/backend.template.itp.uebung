@@ -31,6 +31,7 @@ words = [
   "pygls",
   "pyproject",
   "pyright",
+  "rowcount",
   "rustc",
   "setuptools",
   "tablename",
@@ -40,11 +41,11 @@ words = [
 
 # Words that should always be flagged as incorrect
 # Default: []
-flag_words = ["todo", "fixme"]
+flag_words = ["TODO", "FIXME"]
 
 # List of glob patterns for paths to ignore when spell checking
 # Default: []
-ignore_paths = [".git/**/*", "codebook.toml"]
+ignore_paths = ["venv", ".git/**/*", "codebook.toml"]
 
 # List of regex patterns to ignore when spell checking
 # For code files: patterns match against the full source, tokens within matches are skipped

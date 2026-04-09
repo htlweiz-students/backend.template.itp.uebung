@@ -2,26 +2,70 @@
 
 cd $(dirname $0)
 
-TMP_DIR=$(mktemp -d)
-trap "echo rm -rf ${TMP_DIR}" EXIT
+MODULE_NAME=$(basename $(dirname $(find . ! -path "./build/*" ! -path "./venv/*" -name main.py)))
+
+[ -z "${TMPDIR}" ] && TMPDIR=/tmp
+TMP_DIR_PREFIX="${TMPDIR}/${MODULE_NAME}"
+mkdir -p ${TMP_DIR_PREFIX}
+[ -z "${TMP_DIR}" ] && TMP_DIR=$(mktemp -d "${TMPDIR}/${MODULE_NAME}/XXX")
 [ -d "${TMP_DIR}" ] || exit 1
 
 OK_TEXT="\e[32m OK \e[0m"
 FAIL_TEXT="\e[31mFAIL\e[0m"
-
 PYTEST_LOG="${TMP_DIR}/pytest.log"
 PYRIGHT_LOG="${TMP_DIR}/pyright.log"
 CODESPELL_LOG="${TMP_DIR}/codespell.log"
 ERROR_LOG="${TMP_DIR}/error.log"
+API_LOG="${TMP_DIR}/api.log"
+API_PID_FILE="${TMP_DIR}/api.pid"
+CONFIG_FILE="${TMP_DIR}"/config.json
+API_URL="http://localhost:8000/docs/"
+echo "{" >${CONFIG_FILE}
+echo "  \"connection_string\":\"sqlite:///${TMP_DIR}/db.sqlite\"," >>${CONFIG_FILE}
+echo "  \"log_level\":\"DEBUG\"" >>${CONFIG_FILE}
+echo "}" >>${CONFIG_FILE}
+reload="Y"
+
+get_api_text() {
+  if [ -e "${API_PID_FILE}" ]; then
+    echo "API($(cat ${API_PID_FILE})): \e[32m${API_URL}\e[0m"
+  else
+    echo "API(): \e[31mNOT RUNNING\e[0m"
+  fi
+}
+
+on_term() {
+  reload="N"
+  [ -f ${API_PID_FILE} ] && kill $(cat ${API_PID_FILE})
+  # [ -f ${API_PID_FILE} ] && wait $(cat ${API_PID_FILE})
+  [ -n "${animate_pid}" ] && kill -9 ${animate_pid} >/dev/null 2>&1
+  [ -n "${kill_pid}" ] && kill -9 ${kill_pid} >/dev/null 2>&1
+}
+
+trap on_term TERM INT KILL
 
 . ./venv/bin/activate
+
+start_api() {
+  if [ -f "${API_PID_FILE}" ]; then
+    echo API ALREADY running
+    sleep 4
+  else
+    CONFIG_FILE=${CONFIG_FILE} ./venv/bin/uvicorn ${MODULE_NAME}.main:app --reload --reload-dir ${MODULE_NAME} >${API_LOG} 2>&1 &
+    pid=$!
+    echo ${pid} >${API_PID_FILE}
+    wait ${pid}
+    rm ${API_PID_FILE}
+  fi
+}
+
+start_api &
 
 animate_sleep() {
   sleep 0.05 || sleep 1
 }
 
 animate() {
-  # thiss is a misspelled comment
   while true; do
     printf '\r-'
     animate_sleep
@@ -49,14 +93,10 @@ run_codespell() {
   return $?
 }
 
-reload="Y"
-
 clear
-
 setterm -cursor off
 animate &
 animate_pid=$!
-trap "kill ${animate_pid}" EXIT
 
 run_pytest &
 pytest_pid=$!
@@ -65,6 +105,8 @@ pyright_pid=$!
 run_codespell &
 codespell_pid=$!
 
+# echo "" >${ERROR_LOG}
+[ -e "${ERROR_LOG}" ] && rm ${ERROR_LOG}
 pytest_ok="${OK_TEXT}"
 wait ${pytest_pid} || {
   echo --- PYTEST --- >>${ERROR_LOG}
@@ -85,19 +127,45 @@ wait ${codespell_pid} || {
 }
 
 kill ${animate_pid}
-clear
-[ -e "${ERROR_LOG}" ] && {
-  cat ${ERROR_LOG}
-  echo "--- DONE ---"
+animate_pid=""
+
+repaint() {
+  clear
+  [ -e "${API_LOG}" ] && {
+    echo "--- API LOG ---"
+    tail -n 50 ${API_LOG}
+    echo
+  }
+  [ -e "${ERROR_LOG}" ] && {
+    cat ${ERROR_LOG}
+  }
+  # \e[31mFAIL\e[0m"
+  printf "API_NAME: \e[33m%s\e[0m pytest: %b pyright: %b spell: %b %b TMP_DIR: \e[33mfile://%s/\e[0m " "${MODULE_NAME}" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}" "$(get_api_text)" "${TMP_DIR}"
 }
 
-printf "pytest: %b pyright: %b spell: %b" "${pytest_ok}" "${pyright_ok}" "${codespell_ok}"
-inotifywait -t 0 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
+monitor() {
+  repaint
+  exit_monitor="N"
+  while [ "${reload}" = "Y" ] && [ "${exit_monitor}" = "N" ]; do
+    inotifywait -t 1 --r . -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 &
+    src_notify_pid=$!
+    inotifywait -t 1 "${API_LOG}" -e modify -e create -e delete -e move -e move_self >/dev/null 2>&1 && repaint &
+    api_notify_pid=$!
+    wait ${src_notify_pid} && exit_monitor="Y"
+    wait ${api_notify_pid} && repaint
+  done
+}
+
+monitor &
 kill_pid=$!
-trap "kill ${kill_pid}" EXIT
 wait ${kill_pid}
 sleep 1
 
 if [ "${reload}" = "Y" ]; then
-  $0 $* &
+  echo RELOADING
+  sleep 1
+  TMP_DIR=${TMP_DIR} $0 $*
+else
+  echo TERMINATED
+  rm -rf ${TMP_DIR}
 fi

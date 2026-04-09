@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 from backend.model import Entity
+=======
+from .. import test_module
+
+Entity = test_module.model.Entity
+>>>>>>> 1f2313428b552dff69506b19f1338c50af95d58e
 
 TEST_ID_01 = 1
 TEST_NAME_01 = "TEST ENTITY 1"
