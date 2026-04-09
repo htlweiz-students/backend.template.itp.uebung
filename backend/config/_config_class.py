@@ -26,12 +26,8 @@ Methods:
 
 class Config:
 
-<<<<<<< HEAD:backend/config/_config_class.py
-    DB_CONNECTION_STRING: str = "postgresql://postgres:changethis@localhost/template"
-
-=======
     DB_CONNECTION_STRING: str = "sqlite:///:memory:"
->>>>>>> 1f2313428b552dff69506b19f1338c50af95d58e:BACKEND_NAME_PLACEHOLDER/config/_config_class.py
+
     __instances: dict[str, Config] = {}
 
     KEY_CONNECTION_STRING: str = "connection_string"
@@ -44,14 +40,9 @@ class Config:
         self._connection_string: str = os.environ.get(
             "DB_CONNECTION_STRING", Config.DB_CONNECTION_STRING
         )
+        self._log_level: int | None = None
         if file_name:
             self._load(file_name)
-<<<<<<< HEAD:backend/config/_config_class.py
-=======
-        else:
-            self._log_level: int | None = None
-            self._connection_string: str = Config.DB_CONNECTION_STRING
->>>>>>> 1f2313428b552dff69506b19f1338c50af95d58e:BACKEND_NAME_PLACEHOLDER/config/_config_class.py
 
     def _load(self, filename: str) -> None:
         if os.path.isfile(filename):

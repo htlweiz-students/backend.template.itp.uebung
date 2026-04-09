@@ -1,2 +1,6 @@
+import os
+
+
 def test():
-    print("This is a test!")
+    import sys
+    sys.stdout.write("This is a test!" + os.linesep)

@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-from backend.model import Person
-=======
 from .. import test_module
 
 Person = test_module.model.Person
->>>>>>> 1f2313428b552dff69506b19f1338c50af95d58e
 
 TEST_ID_01 = 1
 TEST_FIRST_NAME_01 = "John"
